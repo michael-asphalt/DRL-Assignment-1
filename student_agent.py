@@ -10,6 +10,9 @@ try:
 except FileNotFoundError:
     Q_table = {}
 
+def get_state(obs):
+    return obs
+
 def get_action(obs):
     
     # TODO: Train your own agent
@@ -17,11 +20,11 @@ def get_action(obs):
     # NOTE: Keep in mind that your Q-table may not cover all possible states in the testing environment.
     #       To prevent crashes, implement a fallback strategy for missing keys. 
     #       Otherwise, even if your agent performs well in training, it may fail during testing.
-
-    if obs in Q_table:
-        return int(np.argmax(Q_table[obs]))
+    state = get_state(obs)
+    if state in Q_table:
+        return int(np.argmax(Q_table[state]))
     else:
         # Fallback to a random action if state is unseen
-        return random.choice([0, 1, 2, 3, 4, 5])
+        return random.choice([0, 1, 2, 3])
     # You can submit this random agent to evaluate the performance of a purely random strategy.
 
