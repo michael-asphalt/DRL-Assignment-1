@@ -4,8 +4,10 @@ import pickle
 import random
 import gym
 
+grid_size = 10
+file_name = f"q_table-{grid_size}.pkl"
 try:
-    with open("q_table.pkl", "rb") as f:
+    with open(file_name, "rb") as f:
         Q_table = pickle.load(f)
 except FileNotFoundError:
     Q_table = {}
