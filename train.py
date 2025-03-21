@@ -140,12 +140,11 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                 shaped_reward -= 20
             
             reward += shaped_reward
+            total_reward += reward
             best_next_action = int(np.argmax(q_table[next_state]))
             q_table[state][action] += alpha * (reward + gamma * q_table[next_state][best_next_action] - q_table[state][action])
             
             state = next_state
-
-            total_reward += reward
         
         rewards_per_episode.append(total_reward)
         epsilon = max(epsilon_end, epsilon * decay_rate)
