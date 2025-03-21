@@ -79,10 +79,13 @@ def get_action(obs):
             drop_pos_idx += 1
         elif flag and obs[15] == 1 and action == 5:
             pickup = False
+            drop_pos_idx = 0
+            drop_pos_idx = 0
         elif action == 5:
             pickup = False
             pickup_pos_idx = 0
             drop_pos_idx = 0
+            
     if step >= 5000:
         pickup = False
         step = 0

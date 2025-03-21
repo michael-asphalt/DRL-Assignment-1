@@ -126,16 +126,22 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                         has_pickuped = 1
                 elif action == 4:
                     shaped_reward -= 20
+                elif action == 5:
+                    shaped_reward -= 20
             else:
                 flag = (obs[0] == obs[2 + 2 * drop_pos_idx] and obs[1] == obs[3 + 2 * drop_pos_idx])
                 if flag and obs[15] != 1 and drop_pos_idx < 3:
                     drop_pos_idx += 1
                 elif flag and obs[15] == 1 and action == 5:
                     pickup = False
+                    pickup_pos_idx = 0
+                    drop_pos_idx = 0
                 elif action == 5:
                     pickup = False
                     pickup_pos_idx = 0
                     drop_pos_idx = 0
+                    shaped_reward -= 20
+                elif action == 4:
                     shaped_reward -= 20
 
 
