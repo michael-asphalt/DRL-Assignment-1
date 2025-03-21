@@ -30,7 +30,9 @@ class SimpleTaxiEnv():
         self.current_fuel = fuel_limit
         self.passenger_picked_up = False
         
-        self.stations = [(0, 0), (0, self.grid_size - 1), (self.grid_size - 1, 0), (self.grid_size - 1, self.grid_size - 1)]
+        all_positions = [(i, j) for i in range(1, self.grid_size, 2) for j in range(1, self.grid_size, 2)]
+
+        self.stations = random.sample(all_positions, 4)
         self.passenger_loc = None
         self.obstacles = generate_obstacles(num_obstacles=3, grid_width=grid_size, grid_height=grid_size)
         # self.obstacles = set()  # No obstacles in simple version
@@ -136,7 +138,7 @@ class SimpleTaxiEnv():
         
         state = (taxi_row, taxi_col, self.stations[0][0],self.stations[0][1] ,self.stations[1][0],self.stations[1][1],self.stations[2][0],self.stations[2][1],self.stations[3][0],self.stations[3][1],obstacle_north, obstacle_south, obstacle_east, obstacle_west, passenger_look, destination_look)
         return state
-    def render_env(self, taxi_pos,   action=None, step=None, fuel=None):
+    def render_env(self, taxi_pos,  action=None, step=None, fuel=None):
         clear_output(wait=True)
 
         grid = [['.'] * self.grid_size for _ in range(self.grid_size)]
@@ -148,11 +150,14 @@ class SimpleTaxiEnv():
             grid[py][px] = 'P'
         '''
         
-        
-        grid[0][0]='R'
-        grid[0][4]='G'
-        grid[4][0]='Y'
-        grid[4][4]='B'
+        grid[self.stations[0][0]][self.stations[0][1]]='R'
+        grid[self.stations[1][0]][self.stations[1][1]]='G'
+        grid[self.stations[2][0]][self.stations[2][1]]='Y'
+        grid[self.stations[3][0]][self.stations[3][1]]='B'
+        # grid[0][0]='R'
+        # grid[0][4]='G'
+        # grid[4][0]='Y'
+        # grid[4][4]='B'
         '''
         # Place destination
         dy, dx = destination_pos
@@ -193,7 +198,7 @@ def run_agent(agent_file, env_config, render=False):
     total_reward = 0
     done = False
     step_count = 0
-    stations = [(0, 0), (0, 4), (4, 0), (4,4)]
+    stations = env.stations
     
     taxi_row, taxi_col, _,_,_,_,_,_,_,_,obstacle_north, obstacle_south, obstacle_east, obstacle_west, passenger_look, destination_look = obs
 
