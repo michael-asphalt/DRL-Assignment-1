@@ -95,6 +95,7 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                 action = int(np.argmax(q_table[state]))
             
             obs, reward, done, info = env.step(action)
+            shaped_reward = 0
             # whether pickup or not
             # decide pickup_pos_idx, drop_pos_idx (0, 1, 2, 3)
             if not pickup:
@@ -107,14 +108,14 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                     pickup_pos_idx += 1
                 elif flag and state[5] == 1 and action == 4:
                     pickup = True
+                    shaped_reward += 20
             else:
                 flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
                     (obs[0] == obs[4] and obs[1] == obs[5]) or \
                     (obs[0] == obs[6] and obs[1] == obs[7]) or \
                     (obs[0] == obs[8] and obs[1] == obs[9]))
-                if flag and state[6] != 1:
+                if flag and state[6] != 1 and drop_pos_idx < 3:
                     drop_pos_idx += 1
-                    drop_pos_idx %= 4
                 elif flag and state[6] == 1 and action == 5:
                     pickup = False
 
@@ -126,14 +127,13 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
             
             best_next_action = int(np.argmax(q_table[next_state]))
             q_table[state][action] += alpha * (reward + gamma * q_table[next_state][best_next_action] - q_table[state][action])
-            shaped_reward = 0
-            if obs[10] == 0 and action == 1:
+            if state[1] == 1 and action == 1:
                 shaped_reward -= 20
-            elif obs[11] == 0 and action == 0:
+            elif state[2] == 1 and action == 0:
                 shaped_reward -= 20
-            elif obs[12] == 0 and action == 2:
+            elif state[3] == 1 and action == 2:
                 shaped_reward -= 20
-            elif obs[13] == 0 and action == 3:
+            elif state[4] == 1 and action == 3:
                 shaped_reward -= 20
             state = next_state
             reward += shaped_reward
