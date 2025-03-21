@@ -8,6 +8,7 @@ pickup = False
 pickup_pos_idx = 0
 drop_pos_idx = 0
 xxx = 0
+
 file_name = f"q_table.pkl"
 try:
     with open(file_name, "rb") as f:
@@ -34,8 +35,8 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
     ret.append(obs[13])
     ret.append(obs[14])
     ret.append(obs[15])
-    ret.append(taxi_pos[0] - next_station[0])
-    ret.append(taxi_pos[1] - next_station[1])
+    ret.append(np.sign(taxi_pos[0] - next_station[0]))
+    ret.append(np.sign(taxi_pos[1] - next_station[1]))
 
     return tuple(ret)
 
@@ -46,46 +47,46 @@ def get_action(obs):
     # NOTE: Keep in mind that your Q-table may not cover all possible states in the testing environment.
     #       To prevent crashes, implement a fallback strategy for missing keys. 
     #       Otherwise, even if your agent performs well in training, it may fail during testing.
-    # global pickup
-    # global pickup_pos_idx
-    # global drop_pos_idx
-    # global action
-    # state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
-    # if not pickup:
-    #     # flag = at one of the station
-    #     flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
-    #         (obs[0] == obs[4] and obs[1] == obs[5]) or \
-    #         (obs[0] == obs[6] and obs[1] == obs[7]) or \
-    #         (obs[0] == obs[8] and obs[1] == obs[9]))
-    #     if (flag and state[5] != 1) and pickup_pos_idx < 3:
-    #         pickup_pos_idx += 1
-    #     elif flag and state[5] == 1 and action == 4:
-    #         pickup = True
-    # else:
-    #     flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
-    #         (obs[0] == obs[4] and obs[1] == obs[5]) or \
-    #         (obs[0] == obs[6] and obs[1] == obs[7]) or \
-    #         (obs[0] == obs[8] and obs[1] == obs[9]))
-    #     if flag and state[6] != 1:
-    #         drop_pos_idx += 1
-    #         drop_pos_idx %= 4
-    #     elif flag and state[6] == 1 and action == 5:
-    #         pickup = False
+    global pickup
+    global pickup_pos_idx
+    global drop_pos_idx
+    global action
+    state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
+    if not pickup:
+        # flag = at one of the station
+        flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
+            (obs[0] == obs[4] and obs[1] == obs[5]) or \
+            (obs[0] == obs[6] and obs[1] == obs[7]) or \
+            (obs[0] == obs[8] and obs[1] == obs[9]))
+        if (flag and state[5] != 1) and pickup_pos_idx < 3:
+            pickup_pos_idx += 1
+        elif flag and state[5] == 1 and action == 4:
+            pickup = True
+    else:
+        flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
+            (obs[0] == obs[4] and obs[1] == obs[5]) or \
+            (obs[0] == obs[6] and obs[1] == obs[7]) or \
+            (obs[0] == obs[8] and obs[1] == obs[9]))
+        if flag and state[6] != 1:
+            drop_pos_idx += 1
+            drop_pos_idx %= 4
+        elif flag and state[6] == 1 and action == 5:
+            pickup = False
 
-    # if state in Q_table:
-    #     action = np.argmax(Q_table[state])
-    #     return action
-    # else:
-    #     # Fallback to a random action if state is unseen
-    #     action = random.choice([0, 1, 2 ,3])
-    #     return action
-    if obs[10] == 0:
-        return 1
-    elif obs[11] == 0:
-        return 0
-    elif obs[12] == 0:
-        return 2
-    elif obs[13] == 0:
-        return 3
+    if state in Q_table:
+        action = np.argmax(Q_table[state])
+        return action
+    else:
+        # Fallback to a random action if state is unseen
+        if obs[10] == 0:
+            return 1
+        elif obs[11] == 0:
+            return 0
+        elif obs[12] == 0:
+            return 2
+        elif obs[13] == 0:
+            return 3
+        return action
+   
     # You can submit this random agent to evaluate the performance of a purely random strategy.
 

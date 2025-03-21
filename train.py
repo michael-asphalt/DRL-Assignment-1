@@ -58,13 +58,13 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
     ret.append(obs[13])
     ret.append(obs[14])
     ret.append(obs[15])
-    ret.append(taxi_pos[0] - next_station[0])
-    ret.append(taxi_pos[1] - next_station[1])
+    ret.append(np.sign(taxi_pos[0] - next_station[0]))
+    ret.append(np.sign(taxi_pos[1] - next_station[1]))
 
     return tuple(ret)
 
-def tabular_q_learning(episodes=5000, alpha=0.1, gamma=0.99,
-                         epsilon_start=1.0, epsilon_end=0.1, decay_rate=0.9997,
+def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
+                         epsilon_start=1.0, epsilon_end=0.1, decay_rate=0.9998,
                          fuel_limit=5000, grid_size=5):
     env = SimpleTaxiEnv(grid_size=grid_size, fuel_limit=fuel_limit)
     env.action_space = ActionSpace(6)
@@ -126,8 +126,17 @@ def tabular_q_learning(episodes=5000, alpha=0.1, gamma=0.99,
             
             best_next_action = int(np.argmax(q_table[next_state]))
             q_table[state][action] += alpha * (reward + gamma * q_table[next_state][best_next_action] - q_table[state][action])
-            
+            shaped_reward = 0
+            if obs[10] == 0 and action == 1:
+                shaped_reward -= 20
+            elif obs[11] == 0 and action == 0:
+                shaped_reward -= 20
+            elif obs[12] == 0 and action == 2:
+                shaped_reward -= 20
+            elif obs[13] == 0 and action == 3:
+                shaped_reward -= 20
             state = next_state
+            reward += shaped_reward
             total_reward += reward
         
         rewards_per_episode.append(total_reward)
