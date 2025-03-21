@@ -1,0 +1,27 @@
+# 0 taxi_row
+# 1 taxi_col
+# 2 station_0_0
+# 3 station_0_1
+# 4 station_1_0
+# 5 station_1_1
+# 6 station_2_0
+# 7 station_2_1
+# 8 station_3_0
+# 9 station_3_1
+# 10 obstacle_north
+# 11 obstacle_south
+# 12 obstacle_east
+# 13 obstacle_west
+# 14 passenger_look
+# 15 destination_look
+
+# state
+# 0 pickup
+# 1 obstacle_north
+# 2 obstacle_south
+# 3 obstacle_east
+# 4 obstacle_west
+# 5 passenger_look
+# 6 destination_look
+# 7 sign(taxi_row - next_station_row)
+# 8 sign(taxi_col - next_station_col)

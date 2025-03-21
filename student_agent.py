@@ -57,19 +57,13 @@ def get_action(obs):
     state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
     if not pickup:
         # flag = at one of the station
-        flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
-            (obs[0] == obs[4] and obs[1] == obs[5]) or \
-            (obs[0] == obs[6] and obs[1] == obs[7]) or \
-            (obs[0] == obs[8] and obs[1] == obs[9]))
+        flag = (obs[0] == obs[2 + 2 * pickup_pos_idx] and obs[1] == obs[3 + 2 * pickup_pos_idx])
         if flag and obs[14] != 1 and pickup_pos_idx < 3:
             pickup_pos_idx += 1
         elif flag and obs[14] == 1 and action == 4:
             pickup = True
     else:
-        flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
-            (obs[0] == obs[4] and obs[1] == obs[5]) or \
-            (obs[0] == obs[6] and obs[1] == obs[7]) or \
-            (obs[0] == obs[8] and obs[1] == obs[9]))
+        flag = (obs[0] == obs[2 + 2 * drop_pos_idx] and obs[1] == obs[3 + 2 * drop_pos_idx])
         if flag and obs[15] != 1 and drop_pos_idx < 3:
             drop_pos_idx += 1
         elif flag and obs[15] == 1 and action == 5:

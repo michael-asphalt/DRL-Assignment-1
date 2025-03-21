@@ -30,8 +30,8 @@ from simple_custom_taxi_env import SimpleTaxiEnv
 # 4 obstacle_west
 # 5 passenger_look
 # 6 destination_look
-# 7 taxi_row - next_station_row
-# 8 taxi_col - next_station_col
+# 7 sign(taxi_row - next_station_row)
+# 8 sign(taxi_col - next_station_col)
 
 class ActionSpace:
     def __init__(self, n):
@@ -47,9 +47,9 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
     station_4 = obs[8], obs[9]
     stations_list = [station_1, station_2, station_3, station_4]
     if not pickup:
-        next_station = stations_list[pickup_pos_idx][0], stations_list[pickup_pos_idx][1]
+        next_station = stations_list[pickup_pos_idx]
     else:
-        next_station = stations_list[drop_pos_idx][0], stations_list[drop_pos_idx][1]
+        next_station = stations_list[drop_pos_idx]
     ret = []
     ret.append(pickup)
     ret.append(obs[10])
@@ -60,6 +60,9 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
     ret.append(obs[15])
     ret.append(np.sign(taxi_pos[0] - next_station[0]))
     ret.append(np.sign(taxi_pos[1] - next_station[1]))
+    # print(pickup_pos_idx, drop_pos_idx)
+    # print(taxi_pos, next_station)
+    # print(ret)
 
     return tuple(ret)
 
@@ -81,7 +84,7 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
         state = get_state(obs, False, pickup_pos_idx, drop_pos_idx)
         done = False
         total_reward = 0
-        pick_reward = 0
+        has_pickuped = 0
         while not done:
             # intitialize Q-table for unseen states
             pickup = state[0]
@@ -99,25 +102,28 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
             # whether pickup or not
             # decide pickup_pos_idx, drop_pos_idx (0, 1, 2, 3)
             # flag = at one of the station
-            flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
-                    (obs[0] == obs[4] and obs[1] == obs[5]) or \
-                    (obs[0] == obs[6] and obs[1] == obs[7]) or \
-                    (obs[0] == obs[8] and obs[1] == obs[9]))
+            
             
             if not pickup:
+                flag = (obs[0] == obs[2 + 2 * pickup_pos_idx] and obs[1] == obs[3 + 2 * pickup_pos_idx])
                 if (flag and obs[14] != 1) and pickup_pos_idx < 3:
                     pickup_pos_idx += 1
                 elif flag and obs[14] == 1 and action == 4:
                     pickup = True
-                    if pick_reward == 0:
+                    if has_pickuped == 0:
                         shaped_reward += 50
-                        pick_reward = 1
+                        has_pickuped = 1
             else:
+                flag = (obs[0] == obs[2 + 2 * drop_pos_idx] and obs[1] == obs[3 + 2 * drop_pos_idx])
                 if flag and obs[15] != 1 and drop_pos_idx < 3:
                     drop_pos_idx += 1
                 elif flag and obs[15] == 1 and action == 5:
                     pickup = False
             
+            flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
+                    (obs[0] == obs[4] and obs[1] == obs[5]) or \
+                    (obs[0] == obs[6] and obs[1] == obs[7]) or \
+                    (obs[0] == obs[8] and obs[1] == obs[9]))
             if not pickup and (not flag or obs[14] != 1) and action == 4:
                 shaped_reward -= 20
             if pickup and (not flag or obs[15] != 1) and action == 5:
@@ -128,7 +134,6 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
             if next_state not in q_table:
                 q_table[next_state] = np.zeros(6)
             
-
 
             if state[1] == 1 and action == 1:
                 shaped_reward -= 20
@@ -156,7 +161,7 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
     return q_table, rewards_per_episode
 
 if __name__ == "__main__":
-    episodes = 10000  
+    episodes = 15000  
     q_table, rewards = tabular_q_learning(episodes=episodes, grid_size=10)
     q_table = dict(q_table)
     file_name = "q_table.pkl"
