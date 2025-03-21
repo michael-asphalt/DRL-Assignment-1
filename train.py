@@ -5,6 +5,33 @@ import pickle
 import matplotlib.pyplot as plt
 
 from simple_custom_taxi_env import SimpleTaxiEnv
+# 0 taxi_row
+# 1 taxi_col
+# 2 station_0_0
+# 3 station_0_1
+# 4 station_1_0
+# 5 station_1_1
+# 6 station_2_0
+# 7 station_2_1
+# 8 station_3_0
+# 9 station_3_1
+# 10 obstacle_north
+# 11 obstacle_south
+# 12 obstacle_east
+# 13 obstacle_west
+# 14 passenger_look
+# 15 destination_look
+
+# state
+# 0 pickup
+# 1 obstacle_north
+# 2 obstacle_south
+# 3 obstacle_east
+# 4 obstacle_west
+# 5 passenger_look
+# 6 destination_look
+# 7 taxi_row - next_station_row
+# 8 taxi_col - next_station_col
 
 class ActionSpace:
     def __init__(self, n):
@@ -12,8 +39,29 @@ class ActionSpace:
     def sample(self):
         return random.randint(0, self.n - 1)
 
-def get_state(obs):
-    return tuple(obs)
+def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
+    taxi_pos = obs[0], obs[1]
+    station_1 = obs[2], obs[3]
+    station_2 = obs[4], obs[5]
+    station_3 = obs[6], obs[7]
+    station_4 = obs[8], obs[9]
+    stations_list = [station_1, station_2, station_3, station_4]
+    if not pickup:
+        next_station = stations_list[pickup_pos_idx][0], stations_list[pickup_pos_idx][1]
+    else:
+        next_station = stations_list[drop_pos_idx][0], stations_list[drop_pos_idx][1]
+    ret = []
+    ret.append(pickup)
+    ret.append(obs[10])
+    ret.append(obs[11])
+    ret.append(obs[12])
+    ret.append(obs[13])
+    ret.append(obs[14])
+    ret.append(obs[15])
+    ret.append(taxi_pos[0] - next_station[0])
+    ret.append(taxi_pos[1] - next_station[1])
+
+    return tuple(ret)
 
 def tabular_q_learning(episodes=5000, alpha=0.1, gamma=0.99,
                          epsilon_start=1.0, epsilon_end=0.1, decay_rate=0.9997,
@@ -28,12 +76,16 @@ def tabular_q_learning(episodes=5000, alpha=0.1, gamma=0.99,
 
     for episode in range(episodes):
         obs, _ = env.reset()
-        state = get_state(obs)
+        pickup_pos_idx = 0 
+        drop_pos_idx = 0
+        state = get_state(obs, False, pickup_pos_idx, drop_pos_idx)
         done = False
         total_reward = 0
 
         while not done:
             # intitialize Q-table for unseen states
+            pickup = state[0]
+
             if state not in q_table:
                 q_table[state] = np.zeros(6)
         
@@ -42,8 +94,32 @@ def tabular_q_learning(episodes=5000, alpha=0.1, gamma=0.99,
             else:
                 action = int(np.argmax(q_table[state]))
             
-            next_obs, reward, done, info = env.step(action)
-            next_state = get_state(next_obs)
+            obs, reward, done, info = env.step(action)
+            # whether pickup or not
+            # decide pickup_pos_idx, drop_pos_idx (0, 1, 2, 3)
+            if not pickup:
+                # flag = at one of the station
+                flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
+                    (obs[0] == obs[4] and obs[1] == obs[5]) or \
+                    (obs[0] == obs[6] and obs[1] == obs[7]) or \
+                    (obs[0] == obs[8] and obs[1] == obs[9]))
+                if (flag and state[5] != 1) and pickup_pos_idx < 3:
+                    pickup_pos_idx += 1
+                elif flag and state[5] == 1 and action == 4:
+                    pickup = True
+            else:
+                flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
+                    (obs[0] == obs[4] and obs[1] == obs[5]) or \
+                    (obs[0] == obs[6] and obs[1] == obs[7]) or \
+                    (obs[0] == obs[8] and obs[1] == obs[9]))
+                if flag and state[6] != 1:
+                    drop_pos_idx += 1
+                    drop_pos_idx %= 4
+                elif flag and state[6] == 1 and action == 5:
+                    pickup = False
+
+
+            next_state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
             
             if next_state not in q_table:
                 q_table[next_state] = np.zeros(6)
@@ -67,10 +143,10 @@ if __name__ == "__main__":
     episodes = 10000  
     q_table, rewards = tabular_q_learning(episodes=episodes, grid_size=10)
     q_table = dict(q_table)
-    file_name = "q_table-10.pkl"
+    file_name = "q_table.pkl"
     with open(file_name, "wb") as f:
         pickle.dump(q_table, f)
-    print("Q-table saved to q_table-10.pkl")
+    print("Q-table saved to q_table.pkl")
 
     plt.plot(rewards)
     plt.xlabel("Episode")
