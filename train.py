@@ -50,6 +50,17 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
         next_station = stations_list[pickup_pos_idx]
     else:
         next_station = stations_list[drop_pos_idx]
+
+    # is_around = -1
+    # if next_station[0] == taxi_pos[0] - 1 and next_station[1] == taxi_pos[1]:
+    #     is_around = 0
+    # elif next_station[0] == taxi_pos[0] + 1 and next_station[1] == taxi_pos[1]:
+    #     is_around = 1
+    # elif next_station[0] == taxi_pos[0] and next_station[1] == taxi_pos[1] - 1:
+    #     is_around = 3
+    # elif next_station[0] == taxi_pos[0] and next_station[1] == taxi_pos[1] + 1:
+    #     is_around = 2
+    
     ret = []
     ret.append(pickup)
     ret.append(obs[10])
@@ -60,6 +71,7 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
     ret.append(obs[15])
     ret.append(np.sign(taxi_pos[0] - next_station[0]))
     ret.append(np.sign(taxi_pos[1] - next_station[1]))
+    # ret.append(is_around)
     # print(pickup_pos_idx, drop_pos_idx)
     # print(taxi_pos, next_station)
     # print(ret)
@@ -88,7 +100,6 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
         while not done:
             # intitialize Q-table for unseen states
             pickup = state[0]
-
             if state not in q_table:
                 q_table[state] = np.zeros(6)
         
@@ -111,23 +122,22 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                 elif flag and obs[14] == 1 and action == 4:
                     pickup = True
                     if has_pickuped == 0:
-                        shaped_reward += 50
+                        shaped_reward += 500
                         has_pickuped = 1
+                elif action == 4:
+                    shaped_reward -= 20
             else:
                 flag = (obs[0] == obs[2 + 2 * drop_pos_idx] and obs[1] == obs[3 + 2 * drop_pos_idx])
                 if flag and obs[15] != 1 and drop_pos_idx < 3:
                     drop_pos_idx += 1
                 elif flag and obs[15] == 1 and action == 5:
                     pickup = False
-            
-            flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
-                    (obs[0] == obs[4] and obs[1] == obs[5]) or \
-                    (obs[0] == obs[6] and obs[1] == obs[7]) or \
-                    (obs[0] == obs[8] and obs[1] == obs[9]))
-            if not pickup and (not flag or obs[14] != 1) and action == 4:
-                shaped_reward -= 20
-            if pickup and (not flag or obs[15] != 1) and action == 5:
-                shaped_reward -= 20
+                elif action == 5:
+                    pickup = False
+                    pickup_pos_idx = 0
+                    drop_pos_idx = 0
+                    shaped_reward -= 20
+
 
             next_state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
             

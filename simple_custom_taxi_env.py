@@ -21,7 +21,7 @@ def generate_obstacles(num_obstacles, grid_width, grid_height):
     return obstacles
 
 class SimpleTaxiEnv():
-    def __init__(self, grid_size=10, fuel_limit=50):
+    def __init__(self, grid_size=7, fuel_limit=50):
         """
         Custom Taxi environment supporting different grid sizes.
         """
