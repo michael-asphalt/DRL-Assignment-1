@@ -122,7 +122,7 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                 if flag and obs[15] != 1 and drop_pos_idx < 3:
                     drop_pos_idx += 1
                     if action == 4 or action == 5:
-                        shaped_reward -= 20
+                        shaped_reward -= 40
                 elif flag and obs[15] == 1 and action == 5:
                     pickup = False
                     pickup_pos_idx = 0
@@ -134,9 +134,9 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                     pickup = False
                     pickup_pos_idx = 0
                     drop_pos_idx = 0
-                    shaped_reward -= 20
+                    shaped_reward -= 40
                 elif action == 4:
-                    shaped_reward -= 20
+                    shaped_reward -= 40
 
 
             next_state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
