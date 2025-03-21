@@ -28,16 +28,6 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
         next_station = stations_list[pickup_pos_idx][0], stations_list[pickup_pos_idx][1]
     else:
         next_station = stations_list[drop_pos_idx][0], stations_list[drop_pos_idx][1]
-
-    # is_around = -1
-    # if next_station[0] == taxi_pos[0] - 1 and next_station[1] == taxi_pos[1]:
-    #     is_around = 0
-    # elif next_station[0] == taxi_pos[0] + 1 and next_station[1] == taxi_pos[1]:
-    #     is_around = 1
-    # elif next_station[0] == taxi_pos[0] and next_station[1] == taxi_pos[1] - 1:
-    #     is_around = 3
-    # elif next_station[0] == taxi_pos[0] and next_station[1] == taxi_pos[1] + 1:
-    #     is_around = 2
     ret = []
     ret.append(pickup)
     ret.append(obs[10])
@@ -48,7 +38,6 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
     ret.append(obs[15])
     ret.append(np.sign(taxi_pos[0] - next_station[0]))
     ret.append(np.sign(taxi_pos[1] - next_station[1]))
-    # ret.append(is_around)
 
     return tuple(ret)
 
@@ -85,7 +74,7 @@ def get_action(obs):
             pickup = False
             pickup_pos_idx = 0
             drop_pos_idx = 0
-            
+
     if step >= 5000:
         pickup = False
         step = 0

@@ -50,16 +50,6 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
         next_station = stations_list[pickup_pos_idx]
     else:
         next_station = stations_list[drop_pos_idx]
-
-    # is_around = -1
-    # if next_station[0] == taxi_pos[0] - 1 and next_station[1] == taxi_pos[1]:
-    #     is_around = 0
-    # elif next_station[0] == taxi_pos[0] + 1 and next_station[1] == taxi_pos[1]:
-    #     is_around = 1
-    # elif next_station[0] == taxi_pos[0] and next_station[1] == taxi_pos[1] - 1:
-    #     is_around = 3
-    # elif next_station[0] == taxi_pos[0] and next_station[1] == taxi_pos[1] + 1:
-    #     is_around = 2
     
     ret = []
     ret.append(pickup)
@@ -71,10 +61,6 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
     ret.append(obs[15])
     ret.append(np.sign(taxi_pos[0] - next_station[0]))
     ret.append(np.sign(taxi_pos[1] - next_station[1]))
-    # ret.append(is_around)
-    # print(pickup_pos_idx, drop_pos_idx)
-    # print(taxi_pos, next_station)
-    # print(ret)
 
     return tuple(ret)
 
@@ -97,6 +83,7 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
         done = False
         total_reward = 0
         has_pickuped = 0
+        has_dropped = 0
         while not done:
             # intitialize Q-table for unseen states
             pickup = state[0]
@@ -119,10 +106,12 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                 flag = (obs[0] == obs[2 + 2 * pickup_pos_idx] and obs[1] == obs[3 + 2 * pickup_pos_idx])
                 if (flag and obs[14] != 1) and pickup_pos_idx < 3:
                     pickup_pos_idx += 1
+                    if action == 4 or action == 5:
+                        shaped_reward -= 20
                 elif flag and obs[14] == 1 and action == 4:
                     pickup = True
                     if has_pickuped == 0:
-                        shaped_reward += 500
+                        shaped_reward += 50
                         has_pickuped = 1
                 elif action == 4:
                     shaped_reward -= 20
@@ -132,10 +121,15 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                 flag = (obs[0] == obs[2 + 2 * drop_pos_idx] and obs[1] == obs[3 + 2 * drop_pos_idx])
                 if flag and obs[15] != 1 and drop_pos_idx < 3:
                     drop_pos_idx += 1
+                    if action == 4 or action == 5:
+                        shaped_reward -= 20
                 elif flag and obs[15] == 1 and action == 5:
                     pickup = False
                     pickup_pos_idx = 0
                     drop_pos_idx = 0
+                    if has_dropped == 0:
+                        shaped_reward += 100
+                        has_dropped = 1
                 elif action == 5:
                     pickup = False
                     pickup_pos_idx = 0
@@ -190,17 +184,3 @@ if __name__ == "__main__":
     plt.ylabel("Total Reward")
     plt.title(f"Rewards per Episode (grid_size=10)")
     plt.show()
-
-    # for i in range(5, 11):
-    #     q_table, rewards = tabular_q_learning(episodes=episodes, grid_size=i)
-    #     q_table = dict(q_table)
-    #     file_name = f"q_table-{i}.pkl"
-    #     with open(file_name, "wb") as f:
-    #         pickle.dump(q_table, f)
-    #     print(f"Q-table saved to {file_name}")
-
-    #     plt.plot(rewards)
-    #     plt.xlabel("Episode")
-    #     plt.ylabel("Total Reward")
-    #     plt.title(f"Rewards per Episode (grid_size={i})")
-    #     plt.show()
