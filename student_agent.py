@@ -7,7 +7,7 @@ import gym
 pickup = False
 pickup_pos_idx = 0
 drop_pos_idx = 0
-xxx = 0
+step = 0
 
 file_name = f"q_table.pkl"
 try:
@@ -51,6 +51,8 @@ def get_action(obs):
     global pickup_pos_idx
     global drop_pos_idx
     global action
+    global step
+    step += 1
     state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
     if not pickup:
         # flag = at one of the station
@@ -67,11 +69,16 @@ def get_action(obs):
             (obs[0] == obs[4] and obs[1] == obs[5]) or \
             (obs[0] == obs[6] and obs[1] == obs[7]) or \
             (obs[0] == obs[8] and obs[1] == obs[9]))
-        if flag and state[6] != 1:
+        if flag and state[6] != 1 and drop_pos_idx < 3:
             drop_pos_idx += 1
-            drop_pos_idx %= 4
         elif flag and state[6] == 1 and action == 5:
             pickup = False
+    if step >= 5000:
+        pickup = False
+        step = 0
+        pickup_pos_idx = 0
+        drop_pos_idx= 0
+        action = 0
 
     if state in Q_table:
         action = np.argmax(Q_table[state])
@@ -87,6 +94,5 @@ def get_action(obs):
         elif obs[13] == 0:
             return 3
         return action
-   
     # You can submit this random agent to evaluate the performance of a purely random strategy.
 
