@@ -79,8 +79,13 @@ def get_action(obs):
     #     # Fallback to a random action if state is unseen
     #     action = random.choice([0, 1, 2 ,3])
     #     return action
-    global xxx
-    xxx += 1
-    return xxx % 2
+    if obs[10] == 0:
+        return 1
+    elif obs[11] == 0:
+        return 0
+    elif obs[12] == 0:
+        return 2
+    elif obs[13] == 0:
+        return 3
     # You can submit this random agent to evaluate the performance of a purely random strategy.
 
