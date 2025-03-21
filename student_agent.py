@@ -8,6 +8,7 @@ pickup = False
 pickup_pos_idx = 0
 drop_pos_idx = 0
 step = 0
+action = 0
 
 file_name = f"q_table.pkl"
 try:
@@ -60,18 +61,18 @@ def get_action(obs):
             (obs[0] == obs[4] and obs[1] == obs[5]) or \
             (obs[0] == obs[6] and obs[1] == obs[7]) or \
             (obs[0] == obs[8] and obs[1] == obs[9]))
-        if (flag and state[5] != 1) and pickup_pos_idx < 3:
+        if flag and obs[14] != 1 and pickup_pos_idx < 3:
             pickup_pos_idx += 1
-        elif flag and state[5] == 1 and action == 4:
+        elif flag and obs[14] == 1 and action == 4:
             pickup = True
     else:
         flag = ((obs[0] == obs[2] and obs[1] == obs[3]) or \
             (obs[0] == obs[4] and obs[1] == obs[5]) or \
             (obs[0] == obs[6] and obs[1] == obs[7]) or \
             (obs[0] == obs[8] and obs[1] == obs[9]))
-        if flag and state[6] != 1 and drop_pos_idx < 3:
+        if flag and obs[15] != 1 and drop_pos_idx < 3:
             drop_pos_idx += 1
-        elif flag and state[6] == 1 and action == 5:
+        elif flag and obs[15] == 1 and action == 5:
             pickup = False
     if step >= 5000:
         pickup = False
@@ -93,6 +94,5 @@ def get_action(obs):
             return 2
         elif obs[13] == 0:
             return 3
-        return action
     # You can submit this random agent to evaluate the performance of a purely random strategy.
 
