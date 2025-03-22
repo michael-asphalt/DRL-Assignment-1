@@ -56,24 +56,29 @@ def get_action(obs):
     step += 1
     state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
     if not pickup:
-        # flag = at one of the station
         flag = (obs[0] == obs[2 + 2 * pickup_pos_idx] and obs[1] == obs[3 + 2 * pickup_pos_idx])
-        if flag and obs[14] != 1 and pickup_pos_idx < 3:
-            pickup_pos_idx += 1
-        elif flag and obs[14] == 1 and action == 4:
-            pickup = True
+        if flag and obs[14] != 1:
+            if pickup_pos_idx < 3:
+                pickup_pos_idx += 1
+        elif flag and obs[14] == 1:
+            if action == 4:
+                pickup = True
+
     else:
         flag = (obs[0] == obs[2 + 2 * drop_pos_idx] and obs[1] == obs[3 + 2 * drop_pos_idx])
-        if flag and obs[15] != 1 and drop_pos_idx < 3:
-            drop_pos_idx += 1
-        elif flag and obs[15] == 1 and action == 5:
-            pickup = False
-            drop_pos_idx = 0
-            drop_pos_idx = 0
-        elif action == 5:
-            pickup = False
-            pickup_pos_idx = 0
-            drop_pos_idx = 0
+        if flag and obs[15] != 1:
+            if action == 5:
+                pickup = False
+                pickup_pos_idx = 0
+                drop_pos_idx = 0       
+            elif  drop_pos_idx < 3:
+                drop_pos_idx += 1
+        elif flag and obs[15] == 1:
+            if action == 5:
+                pickup = False  
+                pickup_pos_idx = 0
+                drop_pos_idx = 0
+
 
     if step >= 5000:
         pickup = False
