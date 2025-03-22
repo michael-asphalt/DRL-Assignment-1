@@ -102,14 +102,12 @@ def get_action(obs):
             action = 3
         else: 
             action = 0
-    print("step", step, flush=True)
-    print(action, flush=True)
-    # if action == 4:
-    #     print("step", step, flush=True)
-    #     print("PICKUP", pickup, flush=True)
-    # elif action ==5:
-    #     print("step", step, flush=True)
-    #     print("DROP", pickup, flush=True)
+    if action == 4:
+        print("step", step, flush=True)
+        print("PICKUP", pickup, flush=True)
+    elif action ==5:
+        print("step", step, flush=True)
+        print("DROP", pickup, flush=True)
     return action
     # You can submit this random agent to evaluate the performance of a purely random strategy.
 
