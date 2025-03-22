@@ -64,8 +64,8 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
 
     return tuple(ret)
 
-def tabular_q_learning(episodes=5000, alpha=0.2, gamma=0.99,
-                         epsilon_start=1.0, epsilon_end=0.1, decay_rate=0.9998,
+def tabular_q_learning(episodes=5000, alpha=0.1, gamma=0.99,
+                         epsilon_start=1.0, epsilon_end=0.1, decay_rate=0.9997,
                          fuel_limit=5000, grid_size=5):
     env = SimpleTaxiEnv(grid_size=grid_size, fuel_limit=fuel_limit)
     env.action_space = ActionSpace(6)
@@ -173,7 +173,7 @@ def tabular_q_learning(episodes=5000, alpha=0.2, gamma=0.99,
     return q_table, rewards_per_episode
 
 if __name__ == "__main__":
-    episodes = 100 
+    episodes = 10000 
     all_q_tables = {}
     all_rewards = {}
 
