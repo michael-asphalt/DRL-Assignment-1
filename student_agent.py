@@ -102,6 +102,5 @@ def get_action(obs):
         else: 
             action = 0
     return action
-    # yeah
     # You can submit this random agent to evaluate the performance of a purely random strategy.
 
