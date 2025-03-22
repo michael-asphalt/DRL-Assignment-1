@@ -19,10 +19,12 @@ for i in range(1000):
 
 # 過濾出小於 -1000 的分數
 scores_below_threshold = [s for s in score_list if s < -1000]
+outstanding_score = [s for s in score_list if s >= 0]
 
 # 輸出統計結果
 print("total execution count:", len(score_list))
 print("final score less than -1000 count:", len(scores_below_threshold))
+print("final score greater than 0 count:", len(outstanding_score))
 print("score less than -1000:")
 for score in scores_below_threshold:
     print(score)
