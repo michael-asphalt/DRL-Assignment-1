@@ -15,7 +15,7 @@ for i in range(1000):
         score_list.append(score)
         print(f"Iteration {i}: Final Score: {score}")
     else:
-        print(f"Iteration {i}: 找不到 Final Score 的輸出。")
+        print(f"Iteration {i}: no output")
 
 # 過濾出小於 -1000 的分數
 scores_below_threshold = [s for s in score_list if s < -1000]
