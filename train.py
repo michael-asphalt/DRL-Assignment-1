@@ -65,7 +65,7 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
     return tuple(ret)
 
 def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
-                         epsilon_start=1.0, epsilon_end=0.1, decay_rate=0.9998,
+                         epsilon_start=1.0, epsilon_end=0.1, decay_rate=0.9997,
                          fuel_limit=5000, grid_size=5):
     env = SimpleTaxiEnv(grid_size=grid_size, fuel_limit=fuel_limit)
     env.action_space = ActionSpace(6)
@@ -99,44 +99,46 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
             shaped_reward = 0
             # whether pickup or not
             # decide pickup_pos_idx, drop_pos_idx (0, 1, 2, 3)
-            # flag = at one of the station
-            
             
             if not pickup:
                 flag = (obs[0] == obs[2 + 2 * pickup_pos_idx] and obs[1] == obs[3 + 2 * pickup_pos_idx])
-                if (flag and obs[14] != 1) and pickup_pos_idx < 3:
-                    pickup_pos_idx += 1
+                if flag and obs[14] != 1:
                     if action == 4 or action == 5:
                         shaped_reward -= 20
-                elif flag and obs[14] == 1 and action == 4:
-                    pickup = True
-                    if has_pickuped == 0:
-                        shaped_reward += 50
-                        has_pickuped = 1
-                elif action == 4:
-                    shaped_reward -= 20
-                elif action == 5:
-                    shaped_reward -= 20
+
+                    if pickup_pos_idx < 3:
+                        pickup_pos_idx += 1
+                elif flag and obs[14] == 1:
+                    if action == 4:
+                        pickup = True
+                        if has_pickuped == 0:
+                            shaped_reward += 50
+                            has_pickuped = 1
+                    elif action == 5:
+                        shaped_reward -= 20
             else:
                 flag = (obs[0] == obs[2 + 2 * drop_pos_idx] and obs[1] == obs[3 + 2 * drop_pos_idx])
-                if flag and obs[15] != 1 and drop_pos_idx < 3:
-                    drop_pos_idx += 1
-                    if action == 4 or action == 5:
+                if flag and obs[15] != 1:
+                    if action == 4:
                         shaped_reward -= 40
-                elif flag and obs[15] == 1 and action == 5:
-                    pickup = False
-                    pickup_pos_idx = 0
-                    drop_pos_idx = 0
-                    if has_dropped == 0:
-                        shaped_reward += 100
-                        has_dropped = 1
-                elif action == 5:
-                    pickup = False
-                    pickup_pos_idx = 0
-                    drop_pos_idx = 0
-                    shaped_reward -= 40
-                elif action == 4:
-                    shaped_reward -= 40
+                    elif action == 5:
+                        pickup = False
+                        pickup_pos_idx = 0
+                        drop_pos_idx = 0
+                        shaped_reward -= 40
+                    
+                    if  drop_pos_idx < 3:
+                        drop_pos_idx += 1
+                elif flag and obs[15] == 1:
+                    if action == 5:
+                        pickup = False  
+                        pickup_pos_idx = 0
+                        drop_pos_idx = 0
+                        if has_dropped == 0:
+                            shaped_reward += 100
+                            has_dropped = 1
+                    elif action == 4:
+                        shaped_reward -= 40
 
 
             next_state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
@@ -171,7 +173,7 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
     return q_table, rewards_per_episode
 
 if __name__ == "__main__":
-    episodes = 15000  
+    episodes = 10000 
     q_table, rewards = tabular_q_learning(episodes=episodes, grid_size=10)
     q_table = dict(q_table)
     file_name = "q_table.pkl"
