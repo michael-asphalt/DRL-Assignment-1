@@ -65,7 +65,7 @@ def get_state(obs, pickup, pickup_pos_idx, drop_pos_idx):
     return tuple(ret)
 
 def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
-                         epsilon_start=1.0, epsilon_end=0.1, decay_rate=0.9997,
+                         epsilon_start=1.0, epsilon_end=0.1, decay_rate=0.9998,
                          fuel_limit=5000, grid_size=5):
     env = SimpleTaxiEnv(grid_size=grid_size, fuel_limit=fuel_limit)
     env.action_space = ActionSpace(6)
@@ -104,28 +104,39 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                 if flag and obs[14] != 1:
                     if pickup_pos_idx < 3:
                         pickup_pos_idx += 1
+                    if action == 4:
+                        shaped_reward -= 5
+                    elif action == 5:
+                        shaped_reward -= 10
                 elif flag and obs[14] == 1:
                     if action == 4:
                         pickup = True
                         if has_pickuped == 0:
                             shaped_reward += 25
                             has_pickuped = 1
+                    elif action == 5:
+                        shaped_reward -= 10
                 else:
                     if action == 4:
-                        shaped_reward -= 5
+                        shaped_reward -= 7.5
                     if action == 5:
                         shaped_reward -= 10
             else:
                 flag = (obs[0] == obs[2 + 2 * drop_pos_idx] and obs[1] == obs[3 + 2 * drop_pos_idx])
                 if flag and obs[15] != 1:
+                    if drop_pos_idx < 3:
+                        drop_pos_idx += 1
                     if action == 5:
                         pickup = False
                         pickup_pos_idx = 0
                         drop_pos_idx = 0
-                    elif drop_pos_idx < 3:
-                        drop_pos_idx += 1
+                        shaped_reward -= 15
+                    elif action == 4:
+                        shaped_reward -= 15
                 elif flag and obs[15] == 1:
-                    if action == 5:
+                    if action == 4:
+                        shaped_reward -= 15
+                    elif action == 5:
                         pickup = False  
                         pickup_pos_idx = 0
                         drop_pos_idx = 0
@@ -133,10 +144,10 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
                             shaped_reward += 50
                             has_dropped = 1
                 else:
-                    if action == 5:
-                        shaped_reward -= 5 
                     if action == 4:
-                        shaped_reward -= 10
+                        shaped_reward -= 20
+                    if action == 5:
+                        shaped_reward -= 20
 
 
             next_state = get_state(obs, pickup, pickup_pos_idx, drop_pos_idx)
@@ -146,13 +157,13 @@ def tabular_q_learning(episodes=5000, alpha=0.05, gamma=0.99,
             
 
             if state[1] == 1 and action == 1:
-                shaped_reward -= 5
+                shaped_reward -= 10
             if state[2] == 1 and action == 0:
-                shaped_reward -= 5
+                shaped_reward -= 10
             if state[3] == 1 and action == 2:
-                shaped_reward -= 5
+                shaped_reward -= 10
             if state[4] == 1 and action == 3:
-                shaped_reward -= 5
+                shaped_reward -= 10
             
             reward += shaped_reward
             total_reward += reward
@@ -178,7 +189,7 @@ if __name__ == "__main__":
     # with open(file_name, "wb") as f:
     #     pickle.dump(q_table, f)
     # print("Q-table saved to q_table.pkl")
-    episodes = 10000 
+    episodes = 15000 
     all_q_tables = {}
     all_rewards = {}
 
