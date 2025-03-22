@@ -90,7 +90,6 @@ def get_action(obs):
     if state in Q_table:
         action = np.argmax(Q_table[state])
     else:
-        # Fallback to a random action if state is unseen
         action = 0
         if obs[10] == 0:
             action = 1
@@ -105,7 +104,7 @@ def get_action(obs):
     if action == 4:
         print("step", step, flush=True)
         print("PICKUP", pickup, flush=True)
-    elif action ==5:
+    elif action == 5:
         print("step", step, flush=True)
         print("DROP", pickup, flush=True)
     return action

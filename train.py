@@ -87,7 +87,6 @@ def tabular_q_learning(episodes=5000, alpha=0.075, gamma=0.99,
         has_dropped = 0
         while not done:
             # intitialize Q-table for unseen states
-            pickup = state[0]
             if state not in q_table:
                 q_table[state] = np.zeros(6)
         
@@ -122,7 +121,7 @@ def tabular_q_learning(episodes=5000, alpha=0.075, gamma=0.99,
                         pickup = False
                         pickup_pos_idx = 0
                         drop_pos_idx = 0
-                    elif  drop_pos_idx < 3:
+                    elif drop_pos_idx < 3:
                         drop_pos_idx += 1
                 elif flag and obs[15] == 1:
                     if action == 5:
