@@ -89,7 +89,6 @@ def get_action(obs):
 
     if state in Q_table:
         action = np.argmax(Q_table[state])
-        return action
     else:
         # Fallback to a random action if state is unseen
         action = 0
@@ -103,6 +102,10 @@ def get_action(obs):
             action = 3
         else: 
             action = 0
-        return action
+    if action == 4:
+        print("PICKUP", pickup, flush=True)
+    elif action ==5:
+        print("DROP", pickup, flush=True)
+    return action
     # You can submit this random agent to evaluate the performance of a purely random strategy.
 
